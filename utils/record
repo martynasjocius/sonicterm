@@ -1,0 +1,104 @@
+#!/bin/bash
+#
+# record - Record audio from microphone for specified duration
+#
+# A SonicTerm utility.
+#
+# Usage: ./record SECONDS [FILENAME]
+# Example: ./record 30 my_recording.wav
+# Example: ./record 60  # Uses timestamp as filename
+#
+# Records audio from the default microphone input for the specified duration
+# and saves it as a WAV file using ffmpeg
+#
+
+# Check if correct number of arguments provided
+if [ $# -lt 1 ] || [ $# -gt 2 ]; then
+  echo "Usage: $0 SECONDS [FILENAME]" >&2
+  echo "Example: $0 30 my_recording.wav" >&2
+  echo "Example: $0 60  # Uses timestamp as filename" >&2
+  exit 1
+fi
+
+DURATION="$1"
+FILENAME="$2"
+
+# Validate duration is a positive number
+if ! [[ "$DURATION" =~ ^[0-9]+$ ]] || [ "$DURATION" -le 0 ]; then
+  echo "Error: Duration must be a positive integer (seconds)" >&2
+  exit 1
+fi
+
+# Generate filename if not provided
+if [ -z "$FILENAME" ]; then
+  TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+  FILENAME="recording_${TIMESTAMP}.wav"
+fi
+
+# Ensure filename has .wav extension
+if [[ ! "$FILENAME" =~ \.wav$ ]]; then
+  FILENAME="${FILENAME}.wav"
+fi
+
+# Check if ffmpeg is available
+if ! command -v ffmpeg >/dev/null 2>&1; then
+  echo "Error: ffmpeg is not installed or not in PATH" >&2
+  echo "Please install ffmpeg to use this script" >&2
+  exit 1
+fi
+
+# Note: We'll try different input methods below, so no need to check devices here
+
+echo "Recording for $DURATION seconds..."
+echo "Output file: $FILENAME"
+echo ""
+
+# Start countdown in background
+(
+  for ((i = DURATION; i > 0; i--)); do
+    printf "\rTime remaining: %d seconds   " "$i"
+    sleep 1
+  done
+  printf "\rRecording complete!           \n"
+) &
+COUNTDOWN_PID=$!
+
+# Try different audio input methods in order of preference
+RECORDING_SUCCESS=false
+
+# Try PipeWire first (for modern systems)
+if ffmpeg -f pipewire -i default -t "$DURATION" -ac 2 -ar 44100 -acodec pcm_s16le -y "$FILENAME" 2>/dev/null; then
+  RECORDING_SUCCESS=true
+  echo "Used PipeWire input"
+# Fall back to PulseAudio
+elif ffmpeg -f pulse -i default -t "$DURATION" -ac 2 -ar 44100 -acodec pcm_s16le -y "$FILENAME" 2>/dev/null; then
+  RECORDING_SUCCESS=true
+  echo "Used PulseAudio input"
+# Fall back to ALSA
+elif ffmpeg -f alsa -i default -t "$DURATION" -ac 2 -ar 44100 -acodec pcm_s16le -y "$FILENAME" 2>/dev/null; then
+  RECORDING_SUCCESS=true
+  echo "Used ALSA input"
+fi
+
+# Wait for countdown to finish
+wait $COUNTDOWN_PID 2>/dev/null
+
+# Check if recording was successful
+if [ "$RECORDING_SUCCESS" = true ]; then
+  echo "Recording completed successfully!"
+  echo "File saved as: $FILENAME"
+
+  # Show file info
+  if command -v ffprobe >/dev/null 2>&1; then
+    echo ""
+    echo "File information:"
+    ffprobe -v quiet -show_entries format=duration,size -show_entries stream=sample_rate,channels -of csv=p=0 "$FILENAME" 2>/dev/null | while read line; do
+      echo "  $line"
+    done
+  fi
+else
+  echo "Error: Recording failed" >&2
+  echo "Tried both PipeWire and PulseAudio input methods" >&2
+  exit 1
+fi
+
