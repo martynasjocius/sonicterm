@@ -1,0 +1,47 @@
+#!/bin/bash
+#
+# wait_for_time - Wait for a specific time and output control signal
+#
+# A SonicTerm utility script.
+#
+# Usage: ./wait_for_time YYYY-MM-DD HH:MM:SS
+# Example: ./wait_for_time 2025-09-28 12:10:00
+#
+# Output: 0 until the target time is reached, then outputs 1
+# This can be used with sonicterm's global playback control
+#
+
+# Check if correct number of arguments provided
+if [ $# -ne 2 ]; then
+  echo "Usage: $0 YYYY-MM-DD HH:MM:SS" >&2
+  echo "Example: $0 2025-09-28 12:10:00" >&2
+  exit 1
+fi
+
+DATE_ARG="$1"
+TIME_ARG="$2"
+
+# Combine date and time into ISO format
+TARGET_DATETIME="${DATE_ARG}T${TIME_ARG}"
+
+# Validate the datetime format by trying to parse it
+if ! date -d "$TARGET_DATETIME" >/dev/null 2>&1; then
+  echo "Error: Invalid datetime format. Use YYYY-MM-DD HH:MM:SS" >&2
+  echo "Example: $0 2025-09-28 12:10:00" >&2
+  exit 1
+fi
+
+# Convert target datetime to Unix timestamp
+TARGET_TIMESTAMP=$(date -d "$TARGET_DATETIME" +%s)
+
+# Check current time and output result
+CURRENT_TIMESTAMP=$(date +%s)
+
+if [ $CURRENT_TIMESTAMP -ge $TARGET_TIMESTAMP ]; then
+  # Target time reached
+  echo "1"
+else
+  # Still waiting
+  echo "0"
+fi
+

@@ -1,0 +1,6 @@
+__pycache__/
+tmp/
+logs/
+recordings/
+scenes/
+samples/
