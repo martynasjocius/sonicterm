@@ -1,6 +1,8 @@
 # SonicTerm
 
-SonicTerm is a generative samples player for sound installations.
+SonicTerm is a terminal-based generative samples player for sound installations.
+
+[![SonicTerm sound installation in the forest video:](https://img.youtube.com/vi/7AAiCNeYOMI/hqdefault.jpg)](https://www.youtube.com/watch?v=7AAiCNeYOMI)
 
 ## Quick Start
 
