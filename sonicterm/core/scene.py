@@ -966,23 +966,6 @@ class SceneBasedSoundscape:
         update_state("scene_manager", "map_mode", self.current_map_mode)
 
     # ------------------------------------------------------------------
-    # Compatibility helpers for legacy callers/tests
-    # ------------------------------------------------------------------
-    def _create_players_from_sample_config(
-        self, sample_config: Dict[str, Any], global_config: Dict[str, Any], sample_index: int
-    ) -> List[SamplePlayer]:
-        return self.player_manager.create_players(sample_config, global_config, sample_index)
-
-    def _cleanup_duplicate_linein_players(self) -> None:
-        self.player_manager.cleanup_duplicate_linein_players()
-
-    def _start_global_control_monitoring(self) -> None:
-        self.global_control_manager.start_monitoring()
-
-    def _check_global_playback_control(self) -> None:
-        self.global_control_manager._check_global_playback_control()
-
-    # ------------------------------------------------------------------
     # Scene loading and reloading
     # ------------------------------------------------------------------
     def load_scene(self) -> bool:

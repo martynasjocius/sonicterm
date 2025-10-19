@@ -38,7 +38,6 @@ from .. import (
     STATE_LOADING,
 )
 
-# Constants for better code readability
 DEFAULT_VOLUME_MIN = 0.3
 DEFAULT_VOLUME_MAX = 0.8
 DEFAULT_PAN_MIN = -1.0
@@ -134,19 +133,13 @@ class SamplePlayer:
                 tui_manager.log(f"File not found: {file_path}")
                 return None, 0.0
 
-            # Load audio file via pygame for consistent decoding performance
             sound = pygame.mixer.Sound(file_path)
-
-            # Get basic duration info (pygame handles all format conversions internally)
-            # For duration, we'll use a simple approximation or default
             duration = sound.get_length()  # Returns duration in seconds
 
-            # Generate random effect parameters from config for display/logging
             volume_config = self.config.get(
                 "volume", {"min": DEFAULT_VOLUME_MIN, "max": DEFAULT_VOLUME_MAX}
             )
             volume_control_source = self._determine_volume_control_source(volume_config)
-
             volume = self._resolve_controlled_value(
                 volume_config, "volume", DEFAULT_VOLUME_MIN, DEFAULT_VOLUME_MAX
             )
@@ -495,8 +488,6 @@ class SamplePlayer:
 
                 sound, sample_duration, parameters = result
 
-                # Sound object is already created by load_and_process_sample
-                # Play the sound
                 self._update_status(STATE_ACTIVE, 0, sample_duration, 0, 0, parameters)
                 channel = sound.play()
 

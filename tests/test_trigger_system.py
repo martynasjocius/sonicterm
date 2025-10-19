@@ -51,7 +51,7 @@ class TriggerSystemTests(unittest.TestCase):
             mock_tui.update_player_status = mock.Mock()
             
             # First call should execute
-            self.scene_manager._check_global_playback_control()
+            self.scene_manager.global_control_manager.check_controls()
             
             # Verify trigger was executed
             self.assertTrue(self.scene_manager.trigger_start_executed)
@@ -68,7 +68,7 @@ class TriggerSystemTests(unittest.TestCase):
             mock_tui.log = mock.Mock()
             mock_tui.update_player_status = mock.Mock()
             
-            self.scene_manager._check_global_playback_control()
+            self.scene_manager.global_control_manager.check_controls()
             
             # Verify trigger was marked as executed but no action taken
             self.assertTrue(self.scene_manager.trigger_start_executed)
@@ -93,7 +93,7 @@ class TriggerSystemTests(unittest.TestCase):
             mock_tui.log = mock.Mock()
             mock_tui.update_player_status = mock.Mock()
             
-            self.scene_manager._check_global_playback_control()
+            self.scene_manager.global_control_manager.check_controls()
             
             # Verify trigger was not executed
             self.assertFalse(self.scene_manager.trigger_start_executed)
@@ -121,7 +121,7 @@ class TriggerSystemTests(unittest.TestCase):
             mock_tui.log = mock.Mock()
             mock_tui.update_player_status = mock.Mock()
             
-            self.scene_manager._check_global_playback_control()
+            self.scene_manager.global_control_manager.check_controls()
             
             # Verify trigger was executed, not control
             self.assertTrue(self.scene_manager.trigger_start_executed)
@@ -147,7 +147,7 @@ class TriggerIntegrationTests(unittest.TestCase):
         }
         
         # Start monitoring
-        self.scene_manager._start_global_control_monitoring()
+        self.scene_manager.global_control_manager.start_monitoring()
         
         # Verify monitoring was started
         self.assertGreater(self.scene_manager.global_control_start_time, 0)
@@ -157,7 +157,7 @@ class TriggerIntegrationTests(unittest.TestCase):
         self.scene_manager.global_control_config = None
         
         # Start monitoring
-        self.scene_manager._start_global_control_monitoring()
+        self.scene_manager.global_control_manager.start_monitoring()
         
         # Verify monitoring was not started
         self.assertEqual(self.scene_manager.global_control_start_time, 0)

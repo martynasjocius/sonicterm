@@ -22,7 +22,7 @@ class ScenePlayerCreationTests(unittest.TestCase):
         global_config = {"effects": {}}
 
         with mock.patch("sonicterm.core.scene.random.choice", return_value=1.5):
-            players = scene._create_players_from_sample_config(sample_config, global_config, 0)
+            players = scene.player_manager.create_players(sample_config, global_config, 0)
 
         self.assertEqual(len(players), 3)
         names = [p.config["name"] for p in players]
@@ -40,7 +40,7 @@ class ScenePlayerCreationTests(unittest.TestCase):
         global_config = {}
 
         with mock.patch("sonicterm.core.scene.tui_manager.log") as mock_log:
-            players = scene._create_players_from_sample_config(sample_config, global_config, 0)
+            players = scene.player_manager.create_players(sample_config, global_config, 0)
 
         self.assertEqual(len(players), 1)
         mock_log.assert_called()
